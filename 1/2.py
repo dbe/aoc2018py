@@ -1,6 +1,5 @@
-def run(input):
-    foo = list(map(int, input.strip().split('\n')))
-    g = gen(foo)
+def run(lines):
+    g = gen(list(map(int, lines)))
 
     s = {0}
     current = 0
@@ -8,8 +7,7 @@ def run(input):
     while(True):
         current += next(g)
         if current in s:
-            print(current)
-            return
+            return current
         else:
             s.add(current)
 
