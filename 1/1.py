@@ -1,2 +1,3 @@
 def run(input):
-    print(input)
+    foo = input.strip().split('\n')
+    print(sum(map(int, foo)))
