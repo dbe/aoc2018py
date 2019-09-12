@@ -1,0 +1,14 @@
+Part 1:
+
+Want to simplify the problem by associating each day with a guard ID,
+and collecting all wake/sleep events into that day.
+
+Then, I'll want to build up an array tracking minutes slept. It will be a size 60 array where each
+index has either 1 or 0 depending if they slept that minute.
+
+With this, I'll be able to group by guard ID, then just reduce the arrays with sum to count total
+minutes slept. Once we know which guard we care about, we just add all of the arrays together
+by index and count which index has the max. (the minute slept the most). Now we have the answer.
+
+
+Parse: Input -> Event

@@ -22,6 +22,7 @@ def run(lines):
 
     ids = set([spec[0] for spec in specs])
 
+    #set symmetric difference (disjoint)
     return ids ^ invalid_ids
 
 def parse(lines):
