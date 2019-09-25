@@ -5,13 +5,13 @@ def run(lines):
     # elements = [2, 3, 0, 3, 10, 11, 12, 1, 1, 0, 1, 99, 2, 1, 1, 2]
     tree = deque(elements)
 
-    return parseNode(tree.popleft(), tree.popleft(), tree)
+    return parse_node(tree.popleft(), tree.popleft(), tree)
 
-def parseNode(children, metadata, tree):
+def parse_node(children, metadata, tree):
     total = 0
 
     for i in range(children):
-        total += parseNode(tree.popleft(), tree.popleft(), tree)
+        total += parse_node(tree.popleft(), tree.popleft(), tree)
 
     for j in range(metadata):
         total += tree.popleft()
