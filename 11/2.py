@@ -1,37 +1,51 @@
-#Note: This is very unoptimized and takes a long time to run.
-#I can use memoization while calculating each size square from a given point to reduce runtime by a factor of ~500
 def run(lines):
     serial = int(lines[0])
     grid = [[power(x + 1, y + 1, serial) for y in range(300)] for x in range(300)]
+    sums = sum_grid(grid)
+    # pretty_print(grid, 5, 5)
+    # print()
+    # pretty_print(sums, 6, 6)
+    answer = get_max(sums)
+    return answer
 
-    max_power = float('-inf')
-    max_coords = (-1, -1)
-    max_size = 0
+def pretty_print(grid, width, height):
+    for y in range(height):
+        for x in range(width):
+            print(grid[x][y], end=' ')
 
-    for y in range(300):
-        for x in range(300):
-            for size in range(1, 300):
-                if(x + size > 300 or y + size > 300):
-                    break
+        print()
 
-                p = grid_power(x, y, size, grid)
 
-                if(p > max_power):
-                    max_power = p
-                    max_coords = (x, y)
+def get_max(sums):
+    max_pow = float('-inf')
+    max_x = -1
+    max_y = -1
+    max_size = -1
+
+    for y in range(1, 301):
+        for x in range(1, 301):
+            for size in range(1, min(302-y, 302-x)):
+                pow = sums_power(x, y, size, sums)
+
+                if(pow > max_pow):
+                    max_pow = pow
+                    max_x = x
+                    max_y = y
                     max_size = size
 
-    return (max_coords[0] + 1, max_coords[1] + 1, max_size)
+    return (max_x, max_y, max_size)
 
+def sums_power(x, y, size, sums):
+    return sums[x+size-1][y+size-1] - sums[x-1][y+size-1] - sums[x+size-1][y-1] + sums[x-1][y-1]
 
-def grid_power(x, y, size, grid):
-    power = 0
+def sum_grid(grid):
+    sums = [[0 for y in range(301)] for x in range(301)]
+    for y in range(1, 301):
+        for x in range(1, 301):
+            sums[x][y] = grid[x-1][y-1] + sums[x-1][y] + sums[x][y-1] - sums[x-1][y-1]
 
-    for j in range(y, y + size):
-        for i in range(x, x + size):
-            power += grid[i][j]
+    return sums
 
-    return power
 
 #Verbose to keep each line equivalent to a step in the problem description
 #Using 1 indexed x and y
