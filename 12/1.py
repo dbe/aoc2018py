@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 import re
 
 REGEX = r'(.{5}) => (.)'
@@ -20,8 +22,12 @@ def run(lines):
 # ###.# => #
 # ####. => #'''.split('\n')
 
-    padding = 50
-    state = list(padding * '.' + lines[0][15:] + padding * '.')
+    state = lines[0][15:]
+    d = defaultdict(lambda: '.')
+
+    print(f"state: {state}")
+
+    return 'oreo'
 
     rules = [lines[i] for i in range(2, len(lines))]
     rule_map = {}
