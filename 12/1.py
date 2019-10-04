@@ -1,6 +1,8 @@
 from collections import defaultdict
 import re
 
+GENERATIONS = 20
+
 def run(lines):
     #Just get all discreet sections of .'s and #'s
     #The first one is the initial state, and all of the rest of the rules
@@ -13,26 +15,31 @@ def run(lines):
     #Clever use of extended ranges to zip even and odd indices from the pairs to combine them
     rules = {i: v for i,v in zip(pairs[::2], pairs[1::2])}
 
+    pretty_print(pots)
+    for time in range(GENERATIONS):
+        evolve(pots, rules)
+        pretty_print(pots)
 
+    return score(pots)
 
-    # for i in range(100):
-    #     state = evolve(state, rule_map)
-    #     print(''.join(state))
-    #
-    #
-    # total = 0
-    # for i in range(len(state)):
-    #     if(state[i] == '#'):
-    #         total += i - padding
-    #
-    # return total
+def score(pots):
+    score = 0
+    for i in range(min(pots), max(pots) + 1):
+        if(pots[i] == '#'):
+            score += i
 
+    return score
 
-def evolve(state, rule_map):
-    new_state = ['.'] * len(state)
+def pretty_print(pots):
+    for i in range(min(pots), max(pots) + 1):
+        print(pots[i], end='')
+    print()
 
-    for i in range(len(state) - 4):
-        stuff = ''.join(state[i:i+5])
-        new_state[i + 2] = rule_map[stuff]
+def evolve(pots, rules):
+    new_pots = {}
+    #Increases the size of search by 2 pots on each end
+    for i in range(min(pots) - 2, max(pots) - 1):
+        slice = ''.join([pots[j] for j in range(i, i+5)])
+        new_pots[i + 2] = rules.get(slice, '.')
 
-    return new_state
+    pots.update(new_pots)
