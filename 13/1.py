@@ -1,3 +1,4 @@
+from functools import cmp_to_key
 import pytest
 import os
 
@@ -7,14 +8,14 @@ def run(lines):
     carts = find_carts(cave)
 
     for i in range(100):
-        pretty_print(cave, carts)
         tick(cave, carts)
-        input()
-        os.system('cls' if os.name == 'nt' else 'clear')
 
 def tick(cave, carts):
     #TODO: Make this use carts in the correct order
-    for cart in carts:
+    for cart in ordered_carts(carts):
+        input()
+        os.system('cls' if os.name == 'nt' else 'clear')
+        pretty_print(cave, carts)
         move_cart(cave, cart)
 
 CORNER_MAPPING = {
@@ -58,6 +59,16 @@ TURN_MAPPING = {
         '^': '>'
     },
 }
+
+def cart_order(a, b):
+    #If they are both on the same row, then use column as tie breaker
+    if(a['pos'][1] == b['pos'][1]):
+        return a['pos'][0] - b['pos'][0]
+    else:
+        return a['pos'][1] - b['pos'][1]
+
+def ordered_carts(carts):
+    return sorted(carts, key=cmp_to_key(cart_order))
 
 def move_cart(cave, cart):
     next_pos = get_next_pos(cart)
