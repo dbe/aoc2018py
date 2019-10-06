@@ -10,19 +10,9 @@ def run(lines):
 
     ticks = 0
     while(True):
-        # os.system('cls' if os.name == 'nt' else 'clear')
-        # pretty_print(cave, carts)
-        # input()
-        # if(ticks > 100):
-        #     os.system('cls' if os.name == 'nt' else 'clear')
-        #     print(f"ticks: {ticks}")
-        #     pretty_print(cave, carts)
-        #     input()
-        # if(ticks % 100 == 0):
-        #     os.system('cls' if os.name == 'nt' else 'clear')
-        #     print(f"ticks: {ticks}")
-        #     pretty_print(cave, carts)
-
+        os.system('cls' if os.name == 'nt' else 'clear')
+        pretty_print(cave, carts)
+        input()
 
         tick(cave, carts)
 
@@ -133,11 +123,7 @@ def pretty_print(cave, carts):
             if(len(carts_here) > 1):
                 print('X', end='')
             elif(len(carts_here) == 1):
-                cart = carts_here[0]
-                if(cart['id'] == 3):
-                    print('3', end='')
-                else:
-                    print(carts_here[0]['dir'], end='')
+                print(carts_here[0]['dir'], end='')
             else:
                 print(col, end='')
 
