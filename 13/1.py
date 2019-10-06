@@ -1,22 +1,37 @@
 from functools import cmp_to_key
 import pytest
 import os
+import sys
 
 def run(lines):
     cave = parse_lines(lines)
     #Also removes carts from the cave map
     carts = find_carts(cave)
 
-    for i in range(100):
+    ticks = 0
+    while(True):
+        # os.system('cls' if os.name == 'nt' else 'clear')
+        # pretty_print(cave, carts)
+        # input()
+        # if(ticks > 100):
+        #     os.system('cls' if os.name == 'nt' else 'clear')
+        #     print(f"ticks: {ticks}")
+        #     pretty_print(cave, carts)
+        #     input()
+        # if(ticks % 100 == 0):
+        #     os.system('cls' if os.name == 'nt' else 'clear')
+        #     print(f"ticks: {ticks}")
+        #     pretty_print(cave, carts)
+
+
         tick(cave, carts)
 
+        ticks += 1
+
 def tick(cave, carts):
-    #TODO: Make this use carts in the correct order
     for cart in ordered_carts(carts):
-        input()
-        os.system('cls' if os.name == 'nt' else 'clear')
-        pretty_print(cave, carts)
-        move_cart(cave, cart)
+        # input()
+        move_cart(cave, cart, carts)
 
 CORNER_MAPPING = {
     '\\': {
@@ -70,9 +85,13 @@ def cart_order(a, b):
 def ordered_carts(carts):
     return sorted(carts, key=cmp_to_key(cart_order))
 
-def move_cart(cave, cart):
+def move_cart(cave, cart, carts):
     next_pos = get_next_pos(cart)
     tile = cave[next_pos[1]][next_pos[0]]
+
+    boom = check_collision(next_pos, carts)
+    if(boom):
+        sys.exit()
 
     #No need to change direction
     if(tile == '-' or tile == '|'):
@@ -88,6 +107,13 @@ def move_cart(cave, cart):
 
     cart['pos'] = next_pos
     cart['dir'] = next_dir
+
+def check_collision(next_pos, carts):
+    boom = carts_at_pos(next_pos, carts)
+    if(len(boom)):
+        print(f"COLLISION AT: {next_pos}. Carts affected: {boom}")
+
+    return len(boom) > 0
 
 def get_next_pos(cart):
     if(cart['dir'] == '>'):
@@ -107,7 +133,11 @@ def pretty_print(cave, carts):
             if(len(carts_here) > 1):
                 print('X', end='')
             elif(len(carts_here) == 1):
-                print(carts_here[0]['dir'], end='')
+                cart = carts_here[0]
+                if(cart['id'] == 3):
+                    print('3', end='')
+                else:
+                    print(carts_here[0]['dir'], end='')
             else:
                 print(col, end='')
 
@@ -124,7 +154,7 @@ def find_carts(cave):
     for y, line in enumerate(cave):
         for x, tile in enumerate(line):
             if(is_cart(tile)):
-                carts.append({'pos': (x, y), 'dir': tile, 'next_intersection': 'left'})
+                carts.append({'pos': (x, y), 'dir': tile, 'next_intersection': 'left', 'id': len(carts)})
                 cave[y][x] = '|' if (tile == 'v' or tile == '^') else '-'
 
     return carts
