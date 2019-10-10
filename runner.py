@@ -10,8 +10,10 @@ COOKIES = {
 
 def main():
     run = importlib.import_module(f"{sys.argv[1]}.{sys.argv[2]}").run
-    # input = get_input().strip().split('\n')
-    input = get_input().split('\n')
+    input = get_input().strip().split('\n')
+
+    #For problem 13, don't strip whitespace
+    # input = get_input().split('\n')
     print(run(input))
 
 def get_input():

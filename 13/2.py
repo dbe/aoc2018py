@@ -3,6 +3,9 @@ import pytest
 import os
 import sys
 
+#NOTE: In order for this input to work, we need to change our runner program to not strip whitespace. Change:
+    #input = get_input().strip().split('\n') to
+    #input = get_input().split('\n')
 def run(lines):
     cave = parse_lines(lines)
     #Also removes carts from the cave map
