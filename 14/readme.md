@@ -1,0 +1,5 @@
+This one is another interesting optimization problem. In my normal 14,2 file, I have nice, well factored code which even has extensive tests done with TDD.
+
+However, there is an issue doing this many string concats. We can optimize this by using a linked list instead of an array as the backing for our list. This works because we don't actually need random access to the elves scores, the elves only go forward small, constant amounts at a time (max of 19). This means we can make a linked list with O(1) appends, and we can just keep updating the elves position in O(1) as well, because at most they need to move forwards 19 positions in the list at a time. This is a constant amount relative to the string size.
+
+I've kept my answers to 1 and 2 the same, but I've added another file called circular_list.py which has my own implementation of a circular list, and a solution to the problem using this data structure. This was the solution I used which actually completed the problem. The naive version never finished.
