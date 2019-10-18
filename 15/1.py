@@ -14,8 +14,55 @@ def run(board):
             pass
         #Move
         else:
+            #All tiles which are adjacent to targets. Some may be unreachable
             tiles = find_candidate_tiles(targets, board)
+
+            #All reachable tiles which have be previously determined to be near a target
+            tiles = reachable(unit, tiles, board)
             print(f"tiles: {tiles}")
+            return
+
+            #The specific goal tile we want to head towards (tie broken by reading order)
+
+            #The tile we will move to based on taking optimal path (tie broken by reading order first step)
+
+            #Actually do the move
+
+#Returns the tile at pos. Takes into account y,x indexign into board
+def tile_at_pos(pos, board):
+    return board[pos[1]][pos[0]]
+
+
+#Filter based on whether or not there exists a path between unit and goal tile
+def reachable(unit, tiles, board):
+    out = []
+    for tile in tiles:
+        if(find_path(unit.pos, tile, board) is not None):
+            out.append(tile)
+
+    return out
+
+#start, end are positions
+def find_path(start, end, board):
+    return dfs([start], end, board, set())
+
+#Not guarenteed to return optimal path
+#Implemented as an excercise
+def dfs(path, goal, board, seen):
+    if(path[-1] == goal):
+        return path
+    elif(len(path) > 1 and tile_at_pos(path[-1], board) != '.'):
+        return None
+    elif(path[-1] in seen):
+        return None
+    else:
+        seen.add(path[-1])
+        for next in adjacent_positions(path[-1]):
+            success = dfs([*path, next], goal, board, seen)
+            if(success):
+                return success
+
+        return None
 
 def find_candidate_tiles(targets, board):
     s = set()
