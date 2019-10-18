@@ -1,3 +1,5 @@
+from collections import namedtuple
+from datastructures import PriorityQueue
 from functools import cmp_to_key
 
 def run(board):
@@ -32,7 +34,6 @@ def run(board):
 def tile_at_pos(pos, board):
     return board[pos[1]][pos[0]]
 
-
 #Filter based on whether or not there exists a path between unit and goal tile
 def reachable(unit, tiles, board):
     out = []
@@ -44,7 +45,43 @@ def reachable(unit, tiles, board):
 
 #start, end are positions
 def find_path(start, end, board):
-    return dfs([start], end, board, set())
+    # return dfs([start], end, board, set())
+    return dijkstra(start, end, board)
+
+def dijkstra(start, end, board):
+    print(f"dijkstra called with start: {start}, end: {end}")
+    Node = namedtuple("Node", ["pos", "d", "p"])
+    seen = {}
+    q = PriorityQueue()
+
+    q.add(Node(start, 0, None), 0)
+    while(len(q) > 0):
+        cur = q.pop()
+        if(cur.pos in seen):
+            continue
+
+        seen[cur.pos] = {'d': cur.d, 'p': cur.p}
+
+        #Terminate early if we find the end
+        if(cur.pos == end):
+            break
+
+        neighbors = [tile for tile in adjacent_positions(cur.pos) if (tile == end or tile_is_empty(tile, board))]
+        for tile in neighbors:
+            q.add(Node(tile, cur.d + 1, cur.pos), cur.d + 1)
+
+    if(end not in seen):
+        return None
+        
+    path = []
+    current = end
+    while(current is not None):
+        path.insert(0, current)
+        current = seen[current]['p']
+
+    return path
+
+
 
 #Not guarenteed to return optimal path
 #Implemented as an excercise
