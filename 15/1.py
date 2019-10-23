@@ -19,10 +19,8 @@ def run(board):
             #All tiles which are adjacent to targets. Some may be unreachable
             tiles = find_candidate_tiles(targets, board)
 
-            #All reachable tiles which have be previously determined to be near a target
-            tiles = reachable(unit, tiles, board)
-            print(f"tiles: {tiles}")
-            return
+            #All shortest paths to target tiles
+            paths = reachable(unit, tiles, board)
 
             #The specific goal tile we want to head towards (tie broken by reading order)
 
@@ -35,13 +33,20 @@ def tile_at_pos(pos, board):
     return board[pos[1]][pos[0]]
 
 #Filter based on whether or not there exists a path between unit and goal tile
+#Return all shortest paths
 def reachable(unit, tiles, board):
-    out = []
-    for tile in tiles:
-        if(find_path(unit.pos, tile, board) is not None):
-            out.append(tile)
+    min_path = float('inf')
+    paths_by_len = {}
 
-    return out
+    for tile in tiles:
+        path = find_path(unit.pos, tile, board)
+        if(path):
+            min_path = min(min_path, len(path))
+            paths = paths_by_len.get(len(path), [])
+            paths.append(path)
+            paths_by_len[len(path)] = paths
+
+    return paths_by_len[min_path]
 
 #start, end are positions
 def find_path(start, end, board):
@@ -49,7 +54,6 @@ def find_path(start, end, board):
     return dijkstra(start, end, board)
 
 def dijkstra(start, end, board):
-    print(f"dijkstra called with start: {start}, end: {end}")
     Node = namedtuple("Node", ["pos", "d", "p"])
     seen = {}
     q = PriorityQueue()
@@ -72,7 +76,7 @@ def dijkstra(start, end, board):
 
     if(end not in seen):
         return None
-        
+
     path = []
     current = end
     while(current is not None):
@@ -80,8 +84,6 @@ def dijkstra(start, end, board):
         current = seen[current]['p']
 
     return path
-
-
 
 #Not guarenteed to return optimal path
 #Implemented as an excercise
