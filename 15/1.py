@@ -3,30 +3,75 @@ from datastructures import PriorityQueue
 from functools import cmp_to_key
 
 def run(board):
+    board = parse_board(board)
     pretty_print(board)
     units = parse_units(board)
-    print(f"units: {units}")
 
-    for unit in ordered_units(units):
-        targets = find_targets(unit, units)
-        adjacent_target = find_adjacent_target(unit, targets)
+    while(True):
+        for unit in ordered_units(units):
+            targets = find_targets(unit, units)
+            adjacent_target = find_adjacent_target(unit, targets)
 
-        #Attack
-        if(adjacent_target):
-            pass
-        #Move
-        else:
-            #All tiles which are adjacent to targets. Some may be unreachable
-            tiles = find_candidate_tiles(targets, board)
+            #Attack
+            if(adjacent_target):
+                pass
+            #Move
+            else:
+                #All tiles which are adjacent to targets. Some may be unreachable
+                tiles = find_candidate_tiles(targets, board)
 
-            #All shortest paths to target tiles
-            paths = reachable(unit, tiles, board)
+                #All shortest paths to target tiles
+                paths = reachable(unit, tiles, board)
 
-            #The specific goal tile we want to head towards (tie broken by reading order)
+                #If we don't have any reachable tiles, we can't do anything
+                if(len(paths) == 0):
+                    continue
 
-            #The tile we will move to based on taking optimal path (tie broken by reading order first step)
+                #The specific goal tile we want to head towards (tie broken by reading order)
+                destination = determine_destination(paths)
 
-            #Actually do the move
+                #The tile we will move to based on taking optimal path (tie broken by reading order first step)
+                step = determine_step(unit.pos, destination, board)
+
+                #Actually do the move
+                move(unit, step, board)
+
+                
+                pretty_print(board)
+                input()
+
+def move(unit, step, board):
+    x, y = unit.pos
+    board[y][x] = '.'
+    board[step[1]][step[0]] = unit.symbol
+
+    unit.pos = step
+
+def parse_board(board):
+    return [list(row) for row in board]
+
+#If there are multiple shortest paths from a to b, pick the one first in reading order
+def determine_step(a, b, board):
+    paths = []
+    min_path = float('inf')
+    tiles = [tile for tile in adjacent_positions(a) if tile_is_empty(tile, board)]
+
+    for tile in tiles:
+        path = find_path(tile, b, board)
+        if(path):
+            min_path = min(min_path, len(path))
+            paths.append(path)
+
+    tied = [path for path in paths if len(path) == min_path]
+
+    steps = [path[0] for path in tied]
+
+    return sorted(steps, key=cmp_to_key(reading_order))[0]
+
+#Determines destination tile based on a list of shortest paths
+def determine_destination(paths):
+    dests = [path[-1] for path in paths]
+    return sorted(dests, key=cmp_to_key(reading_order))[0]
 
 #Returns the tile at pos. Takes into account y,x indexign into board
 def tile_at_pos(pos, board):
@@ -46,7 +91,7 @@ def reachable(unit, tiles, board):
             paths.append(path)
             paths_by_len[len(path)] = paths
 
-    return paths_by_len[min_path]
+    return paths_by_len[min_path] if min_path in paths_by_len else []
 
 #start, end are positions
 def find_path(start, end, board):
@@ -169,10 +214,11 @@ def parse_units(board):
 
 def pretty_print(board):
     for row in board:
-        print(row)
+        print(''.join(row))
 
 class Unit:
     def __init__(self, symbol, pos):
+        self.symbol = symbol
         self.elf = symbol == 'E'
         self.pos = pos
         self.hp = 200
