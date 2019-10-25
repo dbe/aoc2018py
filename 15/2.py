@@ -5,15 +5,34 @@ from datastructures import PriorityQueue
 from functools import cmp_to_key
 
 def run(board):
-    board = parse_board(board)
-    pretty_print(board)
 
-    score = run_game(board)
+    # score = run_game(board)
+    left = 4
+    right = 100
+    while(left < right):
+        mid = (left + right) // 2
+        print(f"Running game for ap = {mid}")
+        input()
+
+        game_board = parse_board(board)
+        pretty_print(game_board)
+
+        elves_win, score = run_game(game_board, mid)
+        print(f"elves_win: {elves_win}")
+        print(f"score: {score}")
+
+        if(elves_win):
+            right = mid
+        else:
+            left = mid + 1
+
+    print(f"left: {left}")
+    print(f"right: {right}")
     print(f"score: {score}")
 
-def run_game(board):
+def run_game(board, ap):
     rounds = 0
-    units = parse_units(board)
+    units = parse_units(board, ap)
 
     while(True):
         for unit in ordered_units(units):
@@ -24,7 +43,7 @@ def run_game(board):
             targets = find_targets(unit, units)
             #There are no valid targets, the game is over
             if(len(targets) == 0):
-                return score(units, rounds)
+                return (True, score(units, rounds))
 
             adjacent_target = find_adjacent_target(unit, targets)
 
@@ -37,10 +56,13 @@ def run_game(board):
 
             #If we were already next to someone, or we just moved next to them, attack
             if(adjacent_target):
-                attack(unit, adjacent_target, board)
+                elf_died = attack(unit, adjacent_target, board)
 
-            os.system('clear')
-            pretty_print(board)
+                if(elf_died):
+                    return (False, score(units, rounds))
+
+            # os.system('clear')
+            # pretty_print(board)
 
         rounds += 1
 
@@ -48,12 +70,16 @@ def score(units, rounds):
     return rounds * sum([unit.hp for unit in units])
 
 
+#Returns True if an elf died, False otherwise
 def attack(unit, target, board):
     if(target.hp > unit.ap):
         target.hp -= unit.ap
+        return False
     else:
         target.hp = 0
         board[target.pos[1]][target.pos[0]] = '.'
+        if(target.elf):
+            return True
 
 
 def move(unit, targets, board):
@@ -239,13 +265,13 @@ def by_health(units):
 def ordered_units(units):
     return sorted(units, key=cmp_to_key(unit_order))
 
-def parse_units(board):
+def parse_units(board, ap):
     units = []
 
     for y, row in enumerate(board):
         for x, char in enumerate(row):
             if(char == 'E' or char =='G'):
-                units.append(Unit(char, (x, y)))
+                units.append(Unit(char, (x, y), ap))
 
     return units
 
@@ -254,12 +280,15 @@ def pretty_print(board):
         print(''.join(row))
 
 class Unit:
-    def __init__(self, symbol, pos):
+    def __init__(self, symbol, pos, ap):
         self.symbol = symbol
         self.elf = symbol == 'E'
         self.pos = pos
         self.hp = 200
-        self.ap = 3
+        if(self.elf):
+            self.ap = ap
+        else:
+            self.ap = 3
 
     def __repr__(self):
         return f"Elf?{self.elf}:{self.pos} HP: {self.hp}"
