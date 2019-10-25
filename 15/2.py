@@ -5,19 +5,18 @@ from datastructures import PriorityQueue
 from functools import cmp_to_key
 
 def run(board):
-
-    # score = run_game(board)
     left = 4
     right = 100
+    scores = {}
     while(left < right):
         mid = (left + right) // 2
         print(f"Running game for ap = {mid}")
-        input()
 
         game_board = parse_board(board)
         pretty_print(game_board)
 
         elves_win, score = run_game(game_board, mid)
+        scores[mid] = score
         print(f"elves_win: {elves_win}")
         print(f"score: {score}")
 
@@ -28,7 +27,7 @@ def run(board):
 
     print(f"left: {left}")
     print(f"right: {right}")
-    print(f"score: {score}")
+    print(f"scores[left]: {scores[left]}")
 
 def run_game(board, ap):
     rounds = 0
@@ -61,8 +60,8 @@ def run_game(board, ap):
                 if(elf_died):
                     return (False, score(units, rounds))
 
-            # os.system('clear')
-            # pretty_print(board)
+            os.system('clear')
+            pretty_print(board)
 
         rounds += 1
 
@@ -101,7 +100,6 @@ def move(unit, targets, board):
 
     #Actually do the move
     move_unit(unit, step, board)
-
 
 def move_unit(unit, step, board):
     x, y = unit.pos
@@ -159,7 +157,44 @@ def reachable(unit, tiles, board):
 #start, end are positions
 def find_path(start, end, board):
     # return dfs([start], end, board, set())
-    return dijkstra(start, end, board)
+    # return dijkstra(start, end, board)
+    return a_star(start, end, board)
+
+def a_star(start, end, board):
+    Node = namedtuple("Node", ["pos", "d", "prev"])
+    seen = {}
+    q = PriorityQueue()
+
+    q.add(Node(start, 0, None), manhattan(start, end))
+
+    while(len(q) > 0):
+        current = q.pop()
+
+        if(current.pos in seen):
+            continue
+
+        seen[current.pos] = current.prev
+
+        if(current.pos == end):
+            break
+
+        neighbors = [tile for tile in adjacent_positions(current.pos) if (tile == end or tile_is_empty(tile, board))]
+        for neighbor in neighbors:
+            q.add(Node(neighbor, current.d + 1, current.pos), current.d + 1 + manhattan(neighbor, end))
+
+    if(end not in seen):
+        return None
+
+    path = []
+    current = end
+    while(current is not None):
+        path.insert(0, current)
+        current = seen[current]
+
+    return path
+
+def manhattan(a, b):
+    return abs(a[0] - b[0]) + abs(a[1] - b[1])
 
 def dijkstra(start, end, board):
     Node = namedtuple("Node", ["pos", "d", "p"])
